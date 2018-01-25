@@ -11,6 +11,5 @@ gem 'parallel_tests', '~> 2.15'
 gem 'sys-proctable'
 gem 'rest-client'
 
-
 gem 'log4r'
 gem 'logging'
