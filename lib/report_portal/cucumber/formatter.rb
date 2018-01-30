@@ -12,6 +12,7 @@ module ReportPortal
 
         setup_message_processing
 
+
         @io = ensure_io(config.out_stream)
 
         [:test_case_started, :test_case_finished, :test_step_started, :test_step_finished, :test_run_finished].each do |event_name|

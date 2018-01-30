@@ -199,6 +199,7 @@ module ReportPortal
       end
 
       def start_feature_with_parentage(feature, desired_time)
+        @logger.debug("Start feature #{feature}")
         parent_node = @root_node
         child_node = nil
         path_components = feature.location.file.split(File::SEPARATOR)
@@ -223,9 +224,11 @@ module ReportPortal
                 index < path_components.size - 1 && # is folder?
                 (id_of_created_item = ReportPortal.item_id_of(name, parent_node)) # get id for folder from report portal
               # get child id from other process
+              @logger.debug("Id of parent item from another process: #{id_of_created_item}")
               item = ReportPortal::TestItem.new(name, type, id_of_created_item, time_to_send(desired_time), description, false, tags)
               child_node = Tree::TreeNode.new(path_component, item)
               parent_node << child_node
+              @logger.debug("Item already created")
             else
               item = ReportPortal::TestItem.new(name, type, nil, time_to_send(desired_time), description, false, tags)
               child_node = Tree::TreeNode.new(path_component, item)
