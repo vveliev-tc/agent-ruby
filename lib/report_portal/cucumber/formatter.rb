@@ -10,8 +10,23 @@ module ReportPortal
       # @api private
       def initialize(config)
 
+<<<<<<< HEAD
         setup_message_processing
 
+=======
+        @thread = Thread.new do
+          initialize_report
+          loop do
+            method_arr = queue.pop
+            report.public_send(*method_arr)
+          end
+        end
+        if @thread.respond_to?(:report_on_exception) # report_on_exception defined only on Ruby 2.4 +
+          @thread.report_on_exception = true
+        else
+          @thread.abort_on_exception = true
+        end
+>>>>>>> 396a961... Remove log debug statements
 
         @io = ensure_io(config.out_stream)
 
@@ -39,6 +54,7 @@ module ReportPortal
         @report ||= ReportPortal::Cucumber::Report.new
       end
 
+<<<<<<< HEAD
       def setup_message_processing
         return if use_same_thread_for_reporting?
 
@@ -50,6 +66,10 @@ module ReportPortal
           end
         end
         @thread.abort_on_exception = true
+=======
+      def initialize_report
+        @report = ReportPortal::Cucumber::Report.new
+>>>>>>> 396a961... Remove log debug statements
       end
 
       def finish_message_processing
