@@ -158,6 +158,7 @@ module ReportPortal
         parent_node = @root_node
         child_node = nil
         path_components = feature.location.file.split(File::SEPARATOR)
+        path_components_no_feature = feature.location.file.split(File::SEPARATOR)[0...path_components.size - 1]
         path_components.each_with_index do |path_component, index|
           child_node = parent_node[path_component]
           unless child_node # if child node was not created yet
