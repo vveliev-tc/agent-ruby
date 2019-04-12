@@ -11,6 +11,8 @@ module ReportPortal
     # @api private
     class Report
 
+      @folder_creation_tracking_file = Pathname(Dir.tmpdir)  + "folder_creation_tracking.lck"
+
       def parallel?
         false
       end
