@@ -12,6 +12,8 @@ module ReportPortal
     # @api private
     class Report
 
+      @folder_creation_tracking_file = Pathname(Dir.tmpdir)  + "folder_creation_tracking.lck"
+
       def parallel?
         false
       end
@@ -47,6 +49,13 @@ module ReportPortal
         else
           new_launch(desired_time, cmd_args)
         end
+      end
+
+      def lock_file(file_path = nil)
+        file_path ||= ReportPortal::Settings.instance.file_with_launch_id
+        file_path ||= tmp_dir + "report_portal_#{ReportPortal::Settings.instance.launch_uuid}.lock" if ReportPortal::Settings.instance.launch_uuid
+        file_path ||= tmp_dir + 'rp_launch_id.tmp'
+        file_path
       end
 
       def new_launch(desired_time = ReportPortal.now, cmd_args = ARGV, lock_file = nil)
