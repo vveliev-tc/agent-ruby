@@ -28,6 +28,12 @@ module ReportPortal
       end
 
       def start_launch(desired_time = ReportPortal.now, cmd_args = ARGV)
+        # Not sure what is the use case if launch id is missing. But it does not make much of practical usage
+        #
+        # Expected behavior that make sense:
+        #  1. If launch_id present attach to existing (simple use case)
+        #  2. If launch_id not present check if exist rp_launch_id.tmp
+        #  3. [ADDED] If launch_id is not present check if lock exist with launch_uuid
         if attach_to_launch?
           ReportPortal.launch_id =
               if ReportPortal::Settings.instance.launch_id
@@ -37,6 +43,7 @@ module ReportPortal
                 File.file?(file_path) ? read_lock_file(file_path) : new_launch(desired_time, cmd_args, file_path)
               end
           $stdout.puts "Attaching to launch #{ReportPortal.launch_id}"
+
         else
           new_launch(desired_time, cmd_args)
         end
@@ -186,6 +193,10 @@ module ReportPortal
           time_to_send = ReportPortal.last_used_time + 1
         end
         ReportPortal.last_used_time = time_to_send
+      end
+
+      def tmp_dir
+        Pathname(ENV['TMPDIR'] ? ENV['TMPDIR'] : Dir.tmpdir)
       end
 
       def same_feature_as_previous_test_case?(feature)
