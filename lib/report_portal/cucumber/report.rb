@@ -11,8 +11,6 @@ module ReportPortal
     # @api private
     class Report
 
-      @folder_creation_tracking_file = Pathname(Dir.tmpdir)  + "folder_creation_tracking.lck"
-
       def parallel?
         false
       end
@@ -62,11 +60,15 @@ module ReportPortal
       end
 
       def new_launch(desired_time = ReportPortal.now, cmd_args = ARGV, lock_file = nil)
-        description = ReportPortal::Settings.instance.description
-        description ||= cmd_args.map {|arg| arg.gsub(/rp_uuid=.+/, "rp_uuid=[FILTERED]")}.join(' ')
-        ReportPortal.start_launch(description, time_to_send(desired_time))
+        ReportPortal.start_launch(description(cmd_args), time_to_send(desired_time))
         set_file_lock_with_launch_id(lock_file, ReportPortal.launch_id) if lock_file
         ReportPortal.launch_id
+      end
+
+      def description(cmd_args=ARGV)
+        description ||= ReportPortal::Settings.instance.description
+        description ||= cmd_args.map {|arg| arg.gsub(/rp_uuid=.+/, "rp_uuid=[FILTERED]")}.join(' ')
+        description
       end
 
       def set_file_lock_with_launch_id(lock_file, launch_id)
@@ -214,10 +216,10 @@ module ReportPortal
               tags = feature.tags.map(&:name)
               type = :TEST
             end
-            # TODO: multithreading # Parallel formatter always executes scenarios inside the same feature in the same process
+
             if parallel? &&
-               index < path_components.size - 1 && # is folder?
-               (id_of_created_item = ReportPortal.item_id_of(name, parent_node)) # get id for folder from report portal
+                index < path_components.size - 1 && # is folder?
+                (id_of_created_item = ReportPortal.item_id_of(name, parent_node)) # get id for folder from report portal
               # get child id from other process
               item = ReportPortal::TestItem.new(name, type, id_of_created_item, time_to_send(desired_time), description, false, tags)
               child_node = Tree::TreeNode.new(path_component, item)
