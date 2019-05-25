@@ -54,6 +54,12 @@ module ReportPortal
         set_file_lock_with_launch_id(lock_file, ReportPortal.launch_id) if lock_file
         ReportPortal.launch_id
       end
+      
+      def description(cmd_args=ARGV)
+        description ||= ReportPortal::Settings.instance.description
+        description ||= cmd_args.map {|arg| arg.gsub(/rp_uuid=.+/, "rp_uuid=[FILTERED]")}.join(' ')
+        description
+      end
 
       def description(cmd_args=ARGV)
         description ||= ReportPortal::Settings.instance.description
