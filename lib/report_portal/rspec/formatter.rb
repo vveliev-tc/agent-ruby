@@ -21,15 +21,7 @@ module ReportPortal
       end
 
       def start(_start_notification)
-<<<<<<< HEAD
         cmd_args = ARGV.map { |arg| (arg.include? 'rp_uuid=') ? 'rp_uuid=[FILTERED]' : arg }.join(' ')
-=======
-        cmd_args = ARGV.map { |arg| (arg.include? 'rp_uuid=')? 'rp_uuid=[FILTERED]' : arg }.join(' ')
-<<<<<<< HEAD
->>>>>>> 265edef... - removing debugger
-=======
-        debugger
->>>>>>> c540c01... work in progress, refactoring lock generation for parallel tests
         ReportPortal.start_launch(cmd_args)
         @root_node = Tree::TreeNode.new(SecureRandom.hex)
         @current_group_node = @root_node
