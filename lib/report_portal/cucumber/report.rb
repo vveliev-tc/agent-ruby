@@ -45,17 +45,9 @@ module ReportPortal
                 File.file?(file_path) ? read_lock_file(file_path) : new_launch(desired_time, cmd_args, file_path)
               end
           $stdout.puts "Attaching to launch #{ReportPortal.launch_id}"
-
         else
           new_launch(desired_time, cmd_args)
         end
-      end
-
-      def lock_file(file_path = nil)
-        file_path ||= ReportPortal::Settings.instance.file_with_launch_id
-        file_path ||= Dir.tmpdir + "report_portal_#{ReportPortal::Settings.instance.launch_uuid}.lock" if ReportPortal::Settings.instance.launch_uuid
-        file_path ||= Dir.tmpdir + 'rp_launch_id.tmp'
-        file_path
       end
 
       def new_launch(desired_time = ReportPortal.now, cmd_args = ARGV, lock_file = nil)
