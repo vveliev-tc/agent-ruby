@@ -41,14 +41,6 @@ module ReportPortal
       is_debug ? 'DEBUG' : 'DEFAULT'
     end
 
-    def file_with_launch_id=(val)
-      @file_with_launch_id = val
-    end
-
-    def file_with_launch_id
-      @file_with_launch_id
-    end
-
     def formatter_modes
       setting('formatter_modes') || []
     end
