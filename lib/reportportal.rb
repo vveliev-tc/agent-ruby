@@ -37,7 +37,7 @@ module ReportPortal
       @launch_id = JSON.parse(response)['id']
     end
 
-    def get_launch()
+    def remote_launch
       response = project_resource["launch/#{@launch_id}"].get
       JSON.parse(response)
     end
@@ -61,8 +61,9 @@ module ReportPortal
         response = project_resource[url].post(data.to_json)
       rescue RestClient::Exception => e
         response_message = JSON.parse(e.response)['message']
-        m = response_message.match(/Start time of child \['(.+)'\] item should be same or later than start time \['(.+)'\] of the parent item\/launch '.+'/)
+        m = response_message.match(%r{Start time of child \['(.+)'\] item should be same or later than start time \['(.+)'\] of the parent item\/launch '.+'})
         raise unless m
+
         time = Time.strptime(m[2], '%a %b %d %H:%M:%S %z %Y')
         data[:start_time] = (time.to_f * 1000).to_i + 1000
         ReportPortal.last_used_time = data[:start_time]
@@ -111,7 +112,6 @@ module ReportPortal
       end
     end
 
-    # needed for parallel formatter
     def item_id_of(name, parent_node)
       if parent_node.is_root? # folder without parent folder
         url = "item?filter.eq.launch=#{@launch_id}&filter.eq.name=#{URI.escape(name)}&filter.size.path=0"
@@ -126,7 +126,6 @@ module ReportPortal
       end
     end
 
-    # needed for parallel formatter
     def close_child_items(parent_id)
       if parent_id.nil?
         url = "item?filter.eq.launch=#{@launch_id}&filter.size.path=0&page.page=1&page.size=100"
@@ -166,6 +165,11 @@ module ReportPortal
       verify_ssl = Settings.instance.disable_ssl_verification
       options[:verify_ssl] = !verify_ssl unless verify_ssl.nil?
       RestClient::Resource.new(Settings.instance.project_url, options) do |response, request, _, &block|
+        if response.code == 406
+          p response.body
+          raise RestClient::Exception, response.body
+        end
+
         unless (200..207).include?(response.code)
           p "ReportPortal API returned #{response}"
           p "Offending request method/URL: #{request.args[:method].upcase} #{request.args[:url]}"
