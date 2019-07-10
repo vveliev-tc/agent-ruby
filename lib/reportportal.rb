@@ -69,11 +69,13 @@ module ReportPortal
         url += "/#{item_node.parent.content.id}" unless item_node.parent && item_node.parent.is_root?
         response = resource[url].post(data.to_json, content_type: :json)
       rescue RestClient::Exception => e
-        if JSON.parse(e.response)['message'][/Start time of child .+ item should be same or later than start time .+ of the parent/]
-          data[:start_time] += 1
-          ReportPortal.last_used_time = data[:start_time]
-          retry
-        end
+        response_message = JSON.parse(e.response)['message']
+        m = response_message.match(/Start time of child (.+) item should be same or later than start time \[\'(.+)\'\] of the parent/)
+        raise unless m
+        time = Time.strptime(m[2], '%a %b %d %H:%M:%S %z %Y')
+        data[:start_time] = (time.to_f * 1000).to_i + 1000
+        ReportPortal.last_used_time = data[:start_time]
+        retry
       end
       JSON.parse(response)['id']
     end
