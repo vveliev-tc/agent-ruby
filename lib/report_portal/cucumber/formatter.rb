@@ -1,3 +1,5 @@
+require 'thread'
+
 require_relative 'report'
 
 module ReportPortal
@@ -5,13 +7,11 @@ module ReportPortal
     class Formatter
       # @api private
       def initialize(config)
-        ENV['REPORT_PORTAL_USED'] = 'true'
-
+        @logger = Logger.new(config.out_stream)
+        @logger.level = ReportPortal::Settings.instance.log_level || :warn
         setup_message_processing
 
-        @io = config.out_stream
-
-        %i[test_case_started test_case_finished test_step_started test_step_finished test_run_finished].each do |event_name|
+        [:test_case_started, :test_case_finished, :test_step_started, :test_step_finished, :test_run_finished].each do |event_name|
           config.on_event event_name do |event|
             process_message(event_name, event)
           end
@@ -21,8 +21,6 @@ module ReportPortal
 
       def puts(message)
         process_message(:puts, message)
-        @io.puts(message)
-        @io.flush
       end
 
       def embed(*args)
@@ -32,7 +30,7 @@ module ReportPortal
       private
 
       def report
-        @report ||= ReportPortal::Cucumber::Report.new
+        @report ||= ReportPortal::Cucumber::Report.new(@logger)
       end
 
       def setup_message_processing
@@ -51,7 +49,7 @@ module ReportPortal
       def finish_message_processing
         return if use_same_thread_for_reporting?
 
-        sleep 0.03 while !@queue.empty? || @queue.num_waiting.zero? # TODO: how to interrupt launch if the user aborted execution
+        sleep 0.03 while !@queue.empty? || @queue.num_waiting == 0 # TODO: how to interrupt launch if the user aborted execution
         @thread.kill
       end
 

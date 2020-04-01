@@ -9,12 +9,12 @@ RSpec.describe 'top level', :ui do
   end
 
   it 'fails' do
-    raise 'error'
+    fail 'error'
   end
 
   it 'is pending' do
     pending('reason 1')
-    raise 'error to make it failed as expected'
+    fail 'error to make it failed as expected'
   end
 
   it 'marked as pending but actually it passes' do
@@ -27,7 +27,7 @@ RSpec.describe 'top level', :ui do
 
     context 'nested context' do
       it 'is nested twice' do
-        raise 'error'
+        fail 'error'
       end
     end
   end

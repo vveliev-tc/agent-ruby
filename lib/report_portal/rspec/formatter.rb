@@ -21,7 +21,7 @@ module ReportPortal
       end
 
       def start(_start_notification)
-        cmd_args = ARGV.map { |arg| arg.include?('rp_uuid=') ? 'rp_uuid=[FILTERED]' : arg }.join(' ')
+        cmd_args = ARGV.map { |arg| (arg.include? 'rp_uuid=') ? 'rp_uuid=[FILTERED]' : arg }.join(' ')
         ReportPortal.start_launch(cmd_args)
         @root_node = Tree::TreeNode.new(SecureRandom.hex)
         @current_group_node = @root_node
@@ -33,13 +33,13 @@ module ReportPortal
           p "Group description should be at least #{MIN_DESCRIPTION_LENGTH} characters ('group_notification': #{group_notification.inspect})"
           return
         end
-        item = ReportPortal::TestItem.new(name: description[0..MAX_DESCRIPTION_LENGTH - 1],
-                                          type: :TEST,
-                                          id: nil,
-                                          start_time: ReportPortal.now,
-                                          description: '',
-                                          closed: false,
-                                          tags: [])
+        item = ReportPortal::TestItem.new(description[0..MAX_DESCRIPTION_LENGTH - 1],
+                                          :TEST,
+                                          nil,
+                                          ReportPortal.now,
+                                          '',
+                                          false,
+                                          [])
         group_node = Tree::TreeNode.new(SecureRandom.hex, item)
         if group_node.nil?
           p "Group node is nil for item #{item.inspect}"
@@ -63,13 +63,13 @@ module ReportPortal
           p "Example description should be at least #{MIN_DESCRIPTION_LENGTH} characters ('notification': #{notification.inspect})"
           return
         end
-        ReportPortal.current_scenario = ReportPortal::TestItem.new(name: description[0..MAX_DESCRIPTION_LENGTH - 1],
-                                                                   type: :STEP,
-                                                                   id: nil,
-                                                                   start_time: ReportPortal.now,
-                                                                   description: '',
-                                                                   closed: false,
-                                                                   tags: [])
+        ReportPortal.current_scenario = ReportPortal::TestItem.new(description[0..MAX_DESCRIPTION_LENGTH - 1],
+                                                                   :STEP,
+                                                                   nil,
+                                                                   ReportPortal.now,
+                                                                   '',
+                                                                   false,
+                                                                   [])
         example_node = Tree::TreeNode.new(SecureRandom.hex, ReportPortal.current_scenario)
         if example_node.nil?
           p "Example node is nil for scenario #{ReportPortal.current_scenario.inspect}"

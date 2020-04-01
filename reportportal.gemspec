@@ -1,4 +1,4 @@
-lib = File.expand_path('lib', __dir__)
+lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'report_portal/version'
 
@@ -14,9 +14,11 @@ Gem::Specification.new do |s|
   s.required_ruby_version  = '>= 2.3.0'
   s.license                = 'Apache-2.0'
 
-  s.add_dependency('http', '~> 4.0')
-  s.add_dependency('mime-types')
-  s.add_dependency('rubytree', '>=0.9.3')
+  s.add_dependency('net-http-persistent', '~> 3.0')
+  s.add_runtime_dependency('faraday', '~> 0.15')
+  s.add_runtime_dependency('parallel_tests', '~> 2.15')
+  s.add_runtime_dependency('rubytree', '~> 1.0')
+  s.add_runtime_dependency('sys-proctable', '1.1.5')
 
   s.add_development_dependency('rubocop', '0.71')
 end
